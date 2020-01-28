@@ -91,7 +91,7 @@ public class InformationEstimator implements InformationEstimatorInterface{
 				if(!DpMap.containsKey(key)) {
 					DpMap.put(key, iq(myFrequencer.frequency()));
 				}
-				value1 = value1 + iq(myFrequencer.frequency());
+				value1 = value1 + DpMap.get(key);
 				start = end;
 		    }
 		    // System.out.println(" "+ value1);
