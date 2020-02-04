@@ -86,17 +86,51 @@ public class Frequencer implements FrequencerInterface{
 		}
 		// Sorting is not implmented yet.
 		// ****  Please write code here... ***
-		int compResult = 0;
+		//バブルソート
+		/*int compResult = 0;
 		for(int i = 0; i < suffixArray.length - 1; i++) {
-			for(int j = suffixArray.length - 1; j > i ; j--) {
-				compResult = suffixCompare(suffixArray[j-1], suffixArray[j]);
+			for(int j = i; j < suffixArray.length; j++) {
+				compResult = suffixCompare(suffixArray[i], suffixArray[j]);
+				//System.out.println(compResult);
 				if(compResult == 1) {
-					int tmp = suffixArray[j-1];
-					suffixArray[j-1] = suffixArray[j];
+					int tmp = suffixArray[i];
+					suffixArray[i] = suffixArray[j];
 					suffixArray[j] = tmp;
 				}
 			}
+		}*/
+		
+		//クイックソート
+		if(suffixArray.length != 0) {
+			quickSort(suffixArray, 0, suffixArray.length - 1);	
 		}
+		
+    }
+    
+    void quickSort(int[] array, int left, int right){
+    	int index = partition(array, left, right);
+    	if(left < index - 1){
+    		quickSort(array, left, index - 1);
+    	}
+    	if(index < right){
+    		quickSort(array, index, right);
+    	}
+    }
+
+    int partition(int[] array, int left, int right){
+    	int pivot = array[(left + right)/2];
+    	while (left < right) {
+    		while (suffixCompare(suffixArray[left], pivot) == -1) left++;
+    		while(suffixCompare(suffixArray[right], pivot) == 1) right --;
+    		if(left <= right){
+    			int tmp = array[left];
+    			array[left] = array[right];
+    			array[right] = tmp;
+    			left ++;
+    			right --;
+    		}
+    	}
+    	return left;
     }
 
     private int targetCompare(int i, int start, int end) {
