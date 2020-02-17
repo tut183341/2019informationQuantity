@@ -1,6 +1,5 @@
 package s4.B183341; // Please modify to s4.Bnnnnnn, where nnnnnn is your student ID. 
 import java.lang.*;
-import java.util.HashMap;
 import s4.specification.*;
 
 /* What is imported from s4.specification
@@ -43,63 +42,41 @@ public class InformationEstimator implements InformationEstimatorInterface{
     }
 
     public double estimation(){
-    	/*
-    	 * *文字列Sの情報量I（S）は次のように定義される
-         * I（S）=-\ sum_ {i = 0} ^ {N} log2 P（ci）
-         * ci：文字列Sのi番目の文字
-         * N：文字列Sの長さ
-         * P(c)：文字列Sの文字cの確率
+    	//DPできる情報量の定義(例) calcResultはiqの計算結果を格納している
+    	/*ex) abcd
+    	 * iq("a")    = min(iq("a")) : calcResult[0]
+    	 * iq("ab")   = min(iq("ab"), iq("a") + iq("b")) : calcResult[1]
+    	 * iq("abc")  = min(iq("abc"), iq("a") + iq("bc"), iq("ab") + f("c")) : calcResult[2]
+    	 * iq("abcd") = min(iq("abcd"), iq("a") + iq("bcd"), iq("ab") + iq("cd"), iq("abc") + iq("d")) : calcResult[3]
+    	 * 過去の計算結果を用いるように書き換えると，
+    	 * iq("a")    = min(iq("a")) : calcResult[0]
+    	 * iq("ab")   = min(iq("ab"), calcResult[0] + iq("b")) : calcResult[1]
+    	 * iq("abc")  = min(iq("abc"), calcResult[0] + iq("bc"), calcResult[1] + f("c")) : calcResult[2]
+    	 * iq("abcd") = min(iq("abcd"), calcResult[0] + iq("bcd"), calcResult[1] + iq("cd"), calcResult[2] + iq("d")) : calcResult[3]
+    	 * このように，過去の計算結果を用いることができ，計算量が多項式オーダとなる．
     	 */
-    	HashMap<String, Double> DpMap = new HashMap<String, Double>();
-		boolean [] partition = new boolean[myTarget.length+1];
-		int np;
-		np = 1<<(myTarget.length-1);
-		double value = Double.MAX_VALUE; // value = mininimum of each "value1".
-		for(int p=0; p<np; p++) { // There are 2^(n-1) kinds of partitions.
-		    // binary representation of p forms partition.
-		    // for partition {"ab" "cde" "fg"}
-		    // a b c d e f g   : myTarget
-		    // T F T F F T F T : partition:
-		    partition[0] = true; // I know that this is not needed, but..
-		    //System.out.println(p+1 + "回目");
-		    for(int i=0; i<myTarget.length -1;i++) {
-		    	partition[i+1] = (0 !=((1<<i) & p));
-		    	/*if(partition[i+1] == true) {
-		    		System.out.println("true");
-		    	}else {
-		    		System.out.println("false");
-		    	}*/
-		    }
-		    partition[myTarget.length] = true;
-	
-		    // Compute Information Quantity for the partition, in "value1"
-		    // value1 = IQ(#"ab")+IQ(#"cde")+IQ(#"fg") for the above example
-	        double value1 = (double) 0.0;
-		    int end = 0;;
-		    int start = end;
-		    while(start<myTarget.length) {
-				// System.out.write(myTarget[end]);
-				end++;;
-				while(partition[end] == false) { 
-				    // System.out.write(myTarget[end]);
-				    end++;
-				}
-				// System.out.print("("+start+","+end+")");
-				myFrequencer.setTarget(subBytes(myTarget, start, end));
-				String key = new String(subBytes(myTarget, start, end));
-				if(!DpMap.containsKey(key)) {
-					DpMap.put(key, iq(myFrequencer.frequency()));
-				}
-				value1 = value1 + DpMap.get(key);
-				start = end;
-		    }
-		    // System.out.println(" "+ value1);
-	
-		    // Get the minimal value in "value"
-		    if(value1 < value) value = value1;
-		}
-		return value;
+    	
+    	double[] calcResult = new double[myTarget.length]; //iqの計算結果を格納
+    	double min = 0;  //最終的にcalcResultに入る値
+    	double comp = 0; //一時保存用変数．(minと比べてcompの方が小さければminに置き換え)
+    	myFrequencer.setTarget(myTarget); //FrequencerクラスのsubByteFrequencyメソッドを用いる為，FrequencerクラスにmyTargetを設定
+    	
+    	//上記の例のように動作させる為，FrequencerクラスのsubByteFrequencyメソッドを用いて，myTargetを先頭から切り取り，
+    	//その切り取った文字列のiqの計算結果をcalcResultに保存する．
+    	for(int i = 1; i <= calcResult.length; i++) {
+    		min = iq(myFrequencer.subByteFrequency(0, i));
+    		for(int j = 1; j < i; j++) {
+    			comp =iq(myFrequencer.subByteFrequency(j, i)) + calcResult[j-1]; //calcResultに保存されている計算結果を再利用
+    			if(comp < min) {
+    				min = comp;
+    			}
+    		}
+    		calcResult[i-1] = min;
+    	}
+    	
+	return calcResult[myTarget.length - 1]; //配列の最後の番地に格納されているものが，文字列全体(myTarger全体)の情報量となる
     }
+
 
     public static void main(String[] args) {
 		InformationEstimator myObject;
