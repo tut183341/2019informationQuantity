@@ -16,7 +16,7 @@ public interface FrequencerInterface {     // This interface provides the design
 
 }
 */
-c class Frequencer implements FrequencerInterface{
+public class Frequencer implements FrequencerInterface{
     // Code to start with: This code is not working, but good start point to work.
     byte [] myTarget;
     byte [] mySpace;
